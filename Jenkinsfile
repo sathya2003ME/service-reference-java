@@ -11,7 +11,7 @@ pipeline {
         stage('Start Services') {
             steps {
                 sh 'docker-compose up -d'
-                sh 'sleep 20'  // wait for MySQL and Redis
+                sh 'sleep 20'  // wait for MySQL/Redis
             }
         }
 
@@ -23,15 +23,14 @@ pipeline {
 
         stage('Run App') {
             steps {
-                // Start Spring Boot JAR in background
-                sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar &'
-                sh 'sleep 10'  // give the app time to boot
+                // Run app in background
+                sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar > app.log 2>&1 &'
+                sh 'sleep 10'  // wait for app to boot
             }
         }
 
         stage('Test App') {
             steps {
-                // Call the /hello endpoint
                 sh 'curl -f http://localhost:9090/hello'
             }
         }
@@ -39,10 +38,9 @@ pipeline {
 
     post {
         always {
-            // Stop and clean up services
             sh 'docker-compose down || true'
-            // Kill Spring Boot if still running
-            sh 'pkill -f "service-reference-java-0.0.1-SNAPSHOT.jar" || true'
+            // Removed pkill so app keeps running
+            echo "App is running on port 9090. You can access it from browser."
         }
     }
 }
