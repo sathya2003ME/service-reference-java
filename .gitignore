@@ -1,0 +1,12 @@
+# Ignore Gradle build output
+/build/
+.gradle/
+out/
+
+# Ignore logs
+*.log
+
+# Ignore OS / IDE files
+.DS_Store
+.idea/
+*.iml
