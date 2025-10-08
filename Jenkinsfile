@@ -11,7 +11,7 @@ pipeline {
         stage('Start Services') {
             steps {
                 sh 'docker-compose up -d'
-                sh 'sleep 20'
+                sh 'sleep 20'  // wait for MySQL/Redis
             }
         }
 
@@ -23,8 +23,22 @@ pipeline {
 
         stage('Run App') {
             steps {
-                sh 'nohup ./gradlew bootRun &'
+                sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar &'
+                sh 'sleep 10'  // wait for app to boot
             }
+        }
+
+        stage('Test App') {
+            steps {
+                sh 'curl -f http://localhost:8080/hello'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down || true'
+            sh 'pkill -f "service-reference-java-0.0.1-SNAPSHOT.jar" || true'
         }
     }
 }
