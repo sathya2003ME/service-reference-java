@@ -1,7 +1,10 @@
-version: "3.8"
+version: '3.8'
+
 services:
   mysql:
-    image: mysql:8.0.37
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: reference_java
@@ -9,8 +12,24 @@ services:
       - "3306:3306"
 
   redis:
-    image: redis:7
+    image: redis:7.0
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
 
- 
+  app:
+    build: .
+    container_name: service-reference-java
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/reference_java
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+

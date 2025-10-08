@@ -8,29 +8,31 @@ pipeline {
             }
         }
 
-        stage('Start Services') {
+        stage('Build & Start Services') {
             steps {
-                sh 'docker-compose up -d'
-                sh 'sleep 20'  // wait for MySQL/Redis
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh './gradlew clean build'
-            }
-        }
-
-        stage('Run App') {
-            steps {
-                sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar &'
-                sh 'sleep 10'  // wait for app to boot
+                sh 'docker-compose up --build -d'
+                // Wait for services
+                sh 'sleep 25'
             }
         }
 
         stage('Test App') {
             steps {
+<<<<<<< HEAD
                 sh 'curl -f http://localhost:9090/hello'
+=======
+                sh '''
+                    for i in {1..30}; do
+                      if curl -s http://localhost:9090/hello; then
+                        echo "App is UP"
+                        exit 0
+                      fi
+                      echo "Waiting for app..."
+                      sleep 5
+                    done
+                    exit 1
+                '''
+>>>>>>> 3114b56 (WIP: local changes before rebase)
             }
         }
     }
@@ -38,7 +40,7 @@ pipeline {
     post {
         always {
             sh 'docker-compose down || true'
-            sh 'pkill -f "service-reference-java-0.0.1-SNAPSHOT.jar" || true'
         }
     }
 }
+
