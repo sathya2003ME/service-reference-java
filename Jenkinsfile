@@ -21,13 +21,17 @@ pipeline {
             }
         }
 
-        stage('Run App') {
-            steps {
-                // Run app in background
-                sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar > app.log 2>&1 &'
-                sh 'sleep 10'  // wait for app to boot
-            }
-        }
+       stage('Run App') {
+    steps {
+        // Kill old app if running
+        sh 'pkill -f "service-reference-java-0.0.1-SNAPSHOT.jar" || true'
+
+        // Start fresh app
+        sh 'nohup java -jar build/libs/service-reference-java-0.0.1-SNAPSHOT.jar > app.log 2>&1 &'
+        sh 'sleep 10'
+    }
+}
+
 
         stage('Test App') {
             steps {
