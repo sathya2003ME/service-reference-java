@@ -1,0 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()   // 🔑 THIS is missing
+        mavenCentral()
+    }
+}
+
+rootProject.name = "service-reference-java"
+
+
